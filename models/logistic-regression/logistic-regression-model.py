@@ -10,7 +10,7 @@ from datetime import datetime
 from wordcloud import WordCloud
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, roc_curve, roc_auc_score, f1_score
 from helpers.text_preprocessing import preprocess_text
 
@@ -49,7 +49,7 @@ X_train_tfidf = tfidf.fit_transform(X_train)
 X_test_tfidf = tfidf.transform(X_test)
 
 # Model Eğitimi
-model = RandomForestClassifier(n_estimators=175, min_samples_split=10, random_state=32)
+model = LogisticRegression(max_iter=1000)
 model.fit(X_train_tfidf, y_train)
 
 # Cross Validation
@@ -91,12 +91,13 @@ plt.tight_layout()
 plt.show()
 
 # TF-IDF Özellik Önem Skoru
-feature_importances = model.feature_importances_
-top_features = sorted(zip(feature_importances, tfidf.get_feature_names_out()), reverse=True)[:20]
-top_coefs = pd.DataFrame(top_features, columns=["Özellik Önem", "Özellik"])
+feature_names = tfidf.get_feature_names_out()
+coefficients = model.coef_[0]
+top_features = sorted(zip(coefficients, feature_names), reverse=True)[:20]
+top_coefs = pd.DataFrame(top_features, columns=["Katsayı", "Özellik"])
 plt.figure(figsize=(10, 5))
-sns.barplot(data=top_coefs, x="Özellik Önem", y="Özellik", hue="Özellik", dodge=False, palette="viridis", legend=False)
-plt.title("Anksiyete Sınıfı İçin En Etkili 20 Özellik")
+sns.barplot(data=top_coefs, x="Katsayı", y="Özellik", hue="Özellik", dodge=False, palette="viridis", legend=False)
+plt.title("Anksiyete Sınıfı İçin En Etkili 20 Kelime")
 plt.tight_layout()
 plt.show()
 

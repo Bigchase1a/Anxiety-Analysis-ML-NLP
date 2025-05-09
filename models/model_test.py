@@ -5,8 +5,8 @@ import pickle
 from helpers.text_preprocessing import preprocess_text
 
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
-model_path = os.path.join(base_path, "anxiety_model_20250509_2359.pkl")
-vec_path = os.path.join(base_path, "tfidf_vectorizer_20250509_2359.pkl")
+model_path = os.path.join(base_path, "anxiety_model_20250510_0215.pkl")
+vec_path = os.path.join(base_path, "tfidf_vectorizer_20250510_0215.pkl")
 
 with open(model_path, "rb") as model_file:
     loaded_model = pickle.load(model_file)
@@ -38,4 +38,4 @@ def interpret_score(score):
 for i, sentence in enumerate(test_sentences):
     anxiety_score = probas[i][1]
     label = interpret_score(anxiety_score)
-    print(f"Cümle: {sentence}\n→ Tahmin: {label} ({anxiety_score * 100:.2f}%)\n")
+    print(f"{sentence}\n→{label} ({anxiety_score * 100:.2f}%)")
