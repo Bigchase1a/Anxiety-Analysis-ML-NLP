@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import pickle
 import pandas as pd
 import numpy as np
@@ -10,10 +14,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, roc_curve, roc_auc_score
-from text_preprocessing import preprocess_text
+from helpers.text_preprocessing import preprocess_text
 
 # Veriyi Yükle
-data = pd.read_csv("mental_health_corpus.csv")
+data = pd.read_csv("data/mental_health_corpus.csv")
 data.dropna(inplace=True)
 
 # Etiket ve Metni Ayır
@@ -41,7 +45,7 @@ data["processed"] = processed_texts
 X_train, X_test, y_train, y_test = train_test_split(processed_texts, labels, test_size=0.2, random_state=32, stratify=labels)
 
 # TF-IDF Vektörizasyonu
-tfidf = TfidfVectorizer(max_features=10000, stop_words='english', ngram_range=(1, 2))
+tfidf = TfidfVectorizer(max_features=5000, stop_words=None, ngram_range=(1, 1))
 X_train_tfidf = tfidf.fit_transform(X_train)
 X_test_tfidf = tfidf.transform(X_test)
 
@@ -59,8 +63,7 @@ print(classification_report(y_test, y_pred, target_names=["Normal", "Anksiyete"]
 
 # Confusion Matrix
 conf_matrix = confusion_matrix(y_test, y_pred)
-sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues",
-            xticklabels=["Normal", "Anksiyete"], yticklabels=["Normal", "Anksiyete"])
+sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues", xticklabels=["Normal", "Anksiyete"], yticklabels=["Normal", "Anksiyete"])
 plt.xlabel("Tahmin")
 plt.ylabel("Gerçek")
 plt.title("Confusion Matrix")
@@ -73,7 +76,6 @@ roc_auc = roc_auc_score(y_test, y_probs)
 
 plt.figure(figsize=(6, 4))
 plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {roc_auc:.2f})')
-plt.plot([0, 1], [0, 1], 'k--')
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
 plt.title('ROC Curve')
