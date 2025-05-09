@@ -4,10 +4,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import pickle
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from collections import Counter
 from datetime import datetime
 from wordcloud import WordCloud
 from sklearn.model_selection import train_test_split, cross_val_score
@@ -46,7 +44,7 @@ data["processed"] = processed_texts
 X_train, X_test, y_train, y_test = train_test_split(processed_texts, labels, test_size=0.2, random_state=32, stratify=labels)
 
 # TF-IDF Vektörizasyonu
-tfidf = TfidfVectorizer(max_features=20000, min_df=2)
+tfidf = TfidfVectorizer(ngram_range=(1, 2), max_features=25000, min_df=3)
 X_train_tfidf = tfidf.fit_transform(X_train)
 X_test_tfidf = tfidf.transform(X_test)
 
@@ -84,8 +82,8 @@ roc_auc = roc_auc_score(y_test, y_probs)
 
 plt.figure(figsize=(6, 4))
 plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {roc_auc:.2f})')
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
+plt.xlabel('False Positive Oranı')
+plt.ylabel('True Positive Oranı')
 plt.title('ROC Curve')
 plt.legend(loc='lower right')
 plt.grid(True)
@@ -96,10 +94,9 @@ plt.show()
 feature_names = tfidf.get_feature_names_out()
 coefficients = model.coef_[0]
 top_features = sorted(zip(coefficients, feature_names), reverse=True)[:20]
-
-top_coefs = pd.DataFrame(top_features, columns=["Coef", "Feature"])
+top_coefs = pd.DataFrame(top_features, columns=["Katsayı", "Özellik"])
 plt.figure(figsize=(10, 5))
-sns.barplot(data=top_coefs, x="Coef", y="Feature", palette="viridis")
+sns.barplot(data=top_coefs, x="Katsayı", y="Özellik", hue="Özellik", dodge=False, palette="viridis", legend=False)
 plt.title("Anksiyete Sınıfı İçin En Etkili 20 Kelime")
 plt.tight_layout()
 plt.show()
