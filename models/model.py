@@ -10,15 +10,16 @@ import seaborn as sns
 from collections import Counter
 from datetime import datetime
 from wordcloud import WordCloud
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, roc_curve, roc_auc_score
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, roc_curve, roc_auc_score, f1_score
 from helpers.text_preprocessing import preprocess_text
 
 # Veriyi Yükle
 data = pd.read_csv("data/mental_health_corpus.csv")
 data.dropna(inplace=True)
+print("Model Eğitim Başlangıcı: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 # Etiket ve Metni Ayır
 texts = data['text']
@@ -45,7 +46,7 @@ data["processed"] = processed_texts
 X_train, X_test, y_train, y_test = train_test_split(processed_texts, labels, test_size=0.2, random_state=32, stratify=labels)
 
 # TF-IDF Vektörizasyonu
-tfidf = TfidfVectorizer(max_features=5000, stop_words=None, ngram_range=(1, 1))
+tfidf = TfidfVectorizer(max_features=20000, min_df=2)
 X_train_tfidf = tfidf.fit_transform(X_train)
 X_test_tfidf = tfidf.transform(X_test)
 
@@ -53,13 +54,20 @@ X_test_tfidf = tfidf.transform(X_test)
 model = LogisticRegression(max_iter=1000)
 model.fit(X_train_tfidf, y_train)
 
+# Cross Validation
+cv_scores = cross_val_score(model, X_train_tfidf, y_train, cv=5, scoring='accuracy')
+print("5-Fold Cross Validation Ortalama Doğruluk: {:.4f}".format(cv_scores.mean()))
+
 # Tahmin
 y_pred = model.predict(X_test_tfidf)
 y_probs = model.predict_proba(X_test_tfidf)[:, 1]
 
 # Değerlendirme
 print("Accuracy:", accuracy_score(y_test, y_pred))
+print("F1 Score:", f1_score(y_test, y_pred))
+print("ROC AUC Score:", roc_auc_score(y_test, y_probs))
 print(classification_report(y_test, y_pred, target_names=["Normal", "Anksiyete"]))
+print("Model Eğitim Sonu: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 # Confusion Matrix
 conf_matrix = confusion_matrix(y_test, y_pred)
@@ -84,6 +92,18 @@ plt.grid(True)
 plt.tight_layout()
 plt.show()
 
+# TF-IDF Özellik Önem Skoru
+feature_names = tfidf.get_feature_names_out()
+coefficients = model.coef_[0]
+top_features = sorted(zip(coefficients, feature_names), reverse=True)[:20]
+
+top_coefs = pd.DataFrame(top_features, columns=["Coef", "Feature"])
+plt.figure(figsize=(10, 5))
+sns.barplot(data=top_coefs, x="Coef", y="Feature", palette="viridis")
+plt.title("Anksiyete Sınıfı İçin En Etkili 20 Kelime")
+plt.tight_layout()
+plt.show()
+
 # Metin Analizi: Token istatistikleri
 all_tokens = [word for text in processed_texts for word in text.split()]
 unique_words = set(all_tokens)
@@ -97,12 +117,6 @@ plt.xlabel("Label (0: Normal, 1: Anksiyete)")
 plt.ylabel("Kelime Sayısı")
 plt.tight_layout()
 plt.show()
-
-# En Sık Geçen 20 Kelime
-most_common = Counter(all_tokens).most_common(20)
-print("\nEn sık geçen 20 kelime:")
-for word, count in most_common:
-    print(f"{word}: {count}")
 
 # WordCloud - Normal
 text_0 = " ".join(data[data['label'] == 0]['processed'])
@@ -126,7 +140,8 @@ plt.show()
 
 # Model ve Vektörizeri Kaydet
 timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-with open(f"anxiety_model_{timestamp}.pkl", "wb") as model_file:
+os.makedirs("models", exist_ok=True)
+with open(f"models/anxiety_model_{timestamp}.pkl", "wb") as model_file:
     pickle.dump(model, model_file)
-with open(f"tfidf_vectorizer_{timestamp}.pkl", "wb") as vec_file:
+with open(f"models/tfidf_vectorizer_{timestamp}.pkl", "wb") as vec_file:
     pickle.dump(tfidf, vec_file)

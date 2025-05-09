@@ -2,6 +2,7 @@ import re
 import nltk
 import spacy
 from nltk.corpus import stopwords
+from textblob import TextBlob
 
 nltk.download('stopwords')
 nltk.download('wordnet')
