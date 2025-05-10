@@ -5,8 +5,8 @@ import pickle
 from helpers.text_preprocessing import preprocess_text
 
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
-model_path = os.path.join(base_path, "anxiety_model_20250510_0215.pkl")
-vec_path = os.path.join(base_path, "tfidf_vectorizer_20250510_0215.pkl")
+model_path = os.path.join(base_path, "anxiety_model_20250510_1009.pkl")
+vec_path = os.path.join(base_path, "tfidf_vectorizer_20250510_1009.pkl")
 
 with open(model_path, "rb") as model_file:
     loaded_model = pickle.load(model_file)
