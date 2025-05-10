@@ -1,12 +1,14 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import pickle
+import numpy as np
 from helpers.text_preprocessing import preprocess_text
 
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
-model_path = os.path.join(base_path, "anxiety_model_20250510_1009.pkl")
-vec_path = os.path.join(base_path, "tfidf_vectorizer_20250510_1009.pkl")
+model_path = os.path.join(base_path, "anxiety_model_20250510_1849.pkl")
+vec_path = os.path.join(base_path, "tfidf_vectorizer_20250510_1849.pkl")
 
 with open(model_path, "rb") as model_file:
     loaded_model = pickle.load(model_file)
@@ -29,13 +31,14 @@ test_sentences = [
 preprocessed = [preprocess_text(text) for text in test_sentences]
 vectorized = loaded_vectorizer.transform(preprocessed)
 predictions = loaded_model.predict(vectorized)
-probas = loaded_model.predict_proba(vectorized)
+decision_scores = loaded_model.decision_function(vectorized)
+probas = 1 / (1 + np.exp(-decision_scores))
 
 print("Test Modeli: ", os.path.basename(model_path).replace(".pkl", ""))
 def interpret_score(score):
     return "Anksiyete" if score >= 0.5 else "Normal"
 
 for i, sentence in enumerate(test_sentences):
-    anxiety_score = probas[i][1]
+    anxiety_score = probas[i]
     label = interpret_score(anxiety_score)
     print(f"{sentence}\n→{label} ({anxiety_score * 100:.2f}%)")

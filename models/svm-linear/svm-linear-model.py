@@ -91,15 +91,15 @@ plt.tight_layout()
 plt.show()
 
 # TF-IDF Özellik Önem Skoru
-coefs = model.coef_[0]
-top_features = sorted(zip(coefs, tfidf.get_feature_names_out()), key=lambda x: abs(x[0]), reverse=True)[:20]
-top_coefs = pd.DataFrame(top_features, columns=["Ağırlık", "Kelime"])
-
-plt.figure(figsize=(10, 5))
-sns.barplot(data=top_coefs, x="Ağırlık", y="Kelime", palette="viridis")
-plt.title("Anksiyete Sınıfı İçin En Etkili 20 Özellik")
-plt.tight_layout()
-plt.show()
+# coefs = model.coef_[0]
+# top_features = sorted(zip(coefs, tfidf.get_feature_names_out()), key=lambda x: abs(x[0]), reverse=True)[:20]
+# top_coefs = pd.DataFrame(top_features, columns=["Ağırlık", "Kelime"])
+# 
+# plt.figure(figsize=(10, 5))
+# sns.barplot(data=top_coefs, x="Ağırlık", y="Kelime", palette="viridis")
+# plt.title("Anksiyete Sınıfı İçin En Etkili 20 Özellik")
+# plt.tight_layout()
+# plt.show()
 
 # Metin Analizi: Token istatistikleri
 all_tokens = [word for text in processed_texts for word in text.split()]

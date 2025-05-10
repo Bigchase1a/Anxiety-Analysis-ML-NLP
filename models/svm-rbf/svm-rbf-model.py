@@ -49,7 +49,7 @@ X_train_tfidf = tfidf.fit_transform(X_train)
 X_test_tfidf = tfidf.transform(X_test)
 
 # Model Eğitimi
-model = SVC(kernel='linear', probability=True, random_state=32)
+model = SVC(kernel='rbf', probability=True, random_state=32)
 model.fit(X_train_tfidf, y_train)
 
 # Cross Validation
@@ -87,17 +87,6 @@ plt.ylabel('True Positive Oranı')
 plt.title('ROC Curve')
 plt.legend(loc='lower right')
 plt.grid(True)
-plt.tight_layout()
-plt.show()
-
-# TF-IDF Özellik Önem Skoru
-coefs = model.coef_[0]
-top_features = sorted(zip(coefs, tfidf.get_feature_names_out()), key=lambda x: abs(x[0]), reverse=True)[:20]
-top_coefs = pd.DataFrame(top_features, columns=["Ağırlık", "Kelime"])
-
-plt.figure(figsize=(10, 5))
-sns.barplot(data=top_coefs, x="Ağırlık", y="Kelime", palette="viridis")
-plt.title("Anksiyete Sınıfı İçin En Etkili 20 Özellik")
 plt.tight_layout()
 plt.show()
 

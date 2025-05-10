@@ -2,6 +2,10 @@ helpers/__pycache__
 
 models/logistic-regression/*
 models/random-forest/*
+models/svm-rbf/*
+models/svm-linear/*
 
 !models/logistic-regression/logistic-regression-model.py
 !models/random-forest/random-forest-model.py
+!models/svm-rbf/svm-rbf-model.py
+!models/svm-linear/svm-linear-model.py
