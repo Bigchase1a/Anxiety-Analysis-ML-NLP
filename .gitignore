@@ -4,8 +4,10 @@ models/logistic-regression/*
 models/random-forest/*
 models/svm-rbf/*
 models/svm-linear/*
+models/multinominal-naive-bayes/*
 
 !models/logistic-regression/logistic-regression-model.py
 !models/random-forest/random-forest-model.py
 !models/svm-rbf/svm-rbf-model.py
 !models/svm-linear/svm-linear-model.py
+!models/multinominal-naive-bayes/multinominal-naive-bayes-model.py

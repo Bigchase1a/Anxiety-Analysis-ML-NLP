@@ -7,8 +7,8 @@ import numpy as np
 from helpers.text_preprocessing import preprocess_text
 
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
-model_path = os.path.join(base_path, "anxiety_model_20250510_1849.pkl")
-vec_path = os.path.join(base_path, "tfidf_vectorizer_20250510_1849.pkl")
+model_path = os.path.join(base_path, "anxiety_model_20250510_2039.pkl")
+vec_path = os.path.join(base_path, "tfidf_vectorizer_20250510_2039.pkl")
 
 with open(model_path, "rb") as model_file:
     loaded_model = pickle.load(model_file)
@@ -30,9 +30,7 @@ test_sentences = [
 
 preprocessed = [preprocess_text(text) for text in test_sentences]
 vectorized = loaded_vectorizer.transform(preprocessed)
-predictions = loaded_model.predict(vectorized)
-decision_scores = loaded_model.decision_function(vectorized)
-probas = 1 / (1 + np.exp(-decision_scores))
+probas = loaded_model.predict_proba(vectorized)[:, 1]
 
 print("Test Modeli: ", os.path.basename(model_path).replace(".pkl", ""))
 def interpret_score(score):
